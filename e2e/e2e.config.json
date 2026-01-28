@@ -1,8 +1,8 @@
 {
-    "targetPanelType": "esnet-networkmap-panel",
+    "targetPanelType": "grnoc-esnet-networkmap-panel",
     "targetDashboard": "network-map-test-dashboard",
     "targetFolder": "network-map-test-folder",
-    "grafanaInstanceName": "esnet-networkmap-panel",
+    "grafanaInstanceName": "grnoc-esnet-networkmap-panel",
     "flowSheets": [
         {
             "name": "All",

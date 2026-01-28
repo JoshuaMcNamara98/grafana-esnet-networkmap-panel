@@ -668,7 +668,7 @@ export class MapCanvas extends BindableHTMLElement {
     let topo = [];
 
     const setLayerTopology = (layer, layerTopology, url)=>{
-      topo.push(layerTopology);
+      topo[layer] = layerTopology;
       this.emit(signals.LAYER_LOAD_SUCCESS, { layer: layer, topology: layerTopology, url: url });
       this._topology = topo;
       this._remoteLayerLoaded[layer] = true;

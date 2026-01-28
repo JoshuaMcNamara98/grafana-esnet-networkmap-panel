@@ -251,7 +251,7 @@
         }
       ],
       "title": "Panel Title",
-      "type": "esnet-networkmap-panel"
+      "type": "grnoc-esnet-networkmap-panel"
     }
   ],
   "refresh": "",
