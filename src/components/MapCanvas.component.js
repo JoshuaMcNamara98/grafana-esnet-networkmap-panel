@@ -893,7 +893,6 @@ export class MapCanvas extends BindableHTMLElement {
     if(!this._traffic) return;
     if(this._options?.topologySource == "autodetect"){
       this.options.enableEditing = false;
-      this._topology = [];
       for(let i=0; i<this._options?.layers.length; i++){
         if(this._topology?.[i]?.autodetected){ continue }
         let layerTopology = { "nodes": [], "edges": [], "nodeHash": {}, "pathLayout": { "type": "curveBasis" }, "autodetected": true }
