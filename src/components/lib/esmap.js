@@ -101,7 +101,7 @@ function renderEdges(g, data, ref, layerId) {
       forward: isAZ ? forward : reverse,
       reverse: isAZ ? reverse : forward,
     };
-    var text = renderTemplate(template, renderData);
+    var text = renderTemplate(template, { ...renderData, ...d});
 
     ref.mapCanvas.showTooltip(event, text);
   }
