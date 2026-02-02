@@ -364,7 +364,11 @@ export class MapCanvas extends BindableHTMLElement {
         let edgeName = null;
         // match for for the case where both src and dst fields are set for the layer
         if(layerOptions?.srcField && layerOptions?.dstField){
-          edgeName = `${row[layerOptions.srcField]}${EDGE_DELIMITER}${row[layerOptions.dstField]}`;
+          // Make each edge unique incase there are multiple edges going to the same src/dst
+          let unique_id = crypto.randomUUID();
+          edgeName = `${row[layerOptions.srcField]}${EDGE_DELIMITER}${row[layerOptions.dstField]}${EDGE_DELIMITER}${unique_id}`;
+          row[layerOptions.srcField] = `${row[layerOptions.srcField]}${EDGE_DELIMITER}${unique_id}`;
+          row[layerOptions.dstField] = `${row[layerOptions.dstField]}${EDGE_DELIMITER}${unique_id}`;
         }
         // match for the case where we have a row with a single metadata point as src
         if(!edgeName){
@@ -512,7 +516,6 @@ export class MapCanvas extends BindableHTMLElement {
         node.color = this._trafficColor(maxTraffic, layerOptions.nodeThresholds, layerOptions.color);
       })
     })
-
   }
 
   setTrafficFormat(fn){

@@ -94,6 +94,10 @@ function renderEdges(g, data, ref, layerId) {
 
     var template = ref.mapCanvas.options.enableCustomEdgeTooltip ? ref.mapCanvas.options.customEdgeTooltip : defaultEdgeTooltip;
 
+    // Try to sanitize any unique ID from the node/edge names
+    d.nodeA = d.nodeA.split("--")[0];
+    d.nodeZ = d.nodeZ.split("--")[0];
+
     const forward = { from: d.nodeA, to: d.nodeZ, dataPoint: d.azDisplayValue };
     const reverse = { from: d.nodeZ, to: d.nodeA, dataPoint: d.zaDisplayValue };
 
@@ -688,6 +692,9 @@ function renderNodes(g, data, ref, layerId) {
     .on('mouseover', function (event, d) {
       d3.select(event.target.parentElement).attr("transform", "scale(1.5, 1.5)");
       const template = ref.mapCanvas.options.enableCustomNodeTooltip ? ref.mapCanvas.options.customNodeTooltip : defaultNodeTooltip;
+
+      // Sanitize any unique ID from the node name
+      d.name = d.name.split("--")[0];
 
       let text = renderTemplate(template, {...d, "self": d });
 
