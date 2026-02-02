@@ -500,6 +500,8 @@ export class MapCanvas extends BindableHTMLElement {
           // out value should be added to the A node's out and the Z node's in
           layerTopology.nodes[nodeHash[targetEdge.nodeZ]]["inTraffic"] += row[values.out];
         }
+        // Add any other data sent via traffic as available metadata for use in custom tooltips
+        layerTopology.nodes[nodeHash[targetEdge.nodeA]]["meta"] = utils.deepJsonFix(row);
       })
       // as a final step for nodes, convert the traffic sums to formatted labels
       // and color the node based on the max traffic (in vs out)
@@ -922,14 +924,25 @@ export class MapCanvas extends BindableHTMLElement {
 
           layerTopology["nodeHash"][source.name] = source;
           layerTopology["nodeHash"][dest.name] = dest;
-          let y_dist = source.coordinate[0] - dest.coordinate[0];
-          let x_dist = source.coordinate[1] - dest.coordinate[1];
-          let distance = Math.sqrt((x_dist**2) + (y_dist**2));
-          let midpoint = [dest.coordinate[0] + (y_dist/2 + (0.12 * distance)),  dest.coordinate[1] + (x_dist/2)];
+          
           let edgeObj = {
             "name": `${source.name}--${dest.name}`,
-            "coordinates": [source.coordinate, midpoint, dest.coordinate],
+            "coordinates": [],
             "meta": { "endpoint_identifiers": { "names": [source.name, dest.name] } }
+          }
+          if ("anchors" in edge) {
+            // Use the given list of coordinates
+            let coordinates = [source.coordinate, dest.coordinate];
+            coordinates.splice(1, 0, ...JSON.parse(edge["anchors"]));
+            edgeObj["coordinates"] = coordinates;
+          } else {
+            // Calculate a mid-point coordinate if this edge has no
+            // custom defined list of coordinates
+            let y_dist = source.coordinate[0] - dest.coordinate[0];
+            let x_dist = source.coordinate[1] - dest.coordinate[1];
+            let distance = Math.sqrt((x_dist**2) + (y_dist**2));
+            let midpoint = [dest.coordinate[0] + (y_dist/2 + (0.12 * distance)),  dest.coordinate[1] + (x_dist/2)];
+            edgeObj["coordinates"] = [source.coordinate, midpoint, dest.coordinate];
           }
           layerTopology["edges"].push(edgeObj);
         })
