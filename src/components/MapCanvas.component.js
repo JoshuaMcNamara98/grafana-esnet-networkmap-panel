@@ -367,8 +367,10 @@ export class MapCanvas extends BindableHTMLElement {
           // Make each edge unique incase there are multiple edges going to the same src/dst
           let unique_id = crypto.randomUUID();
           edgeName = `${row[layerOptions.srcField]}${EDGE_DELIMITER}${row[layerOptions.dstField]}${EDGE_DELIMITER}${unique_id}`;
-          row[layerOptions.srcField] = `${row[layerOptions.srcField]}${EDGE_DELIMITER}${unique_id}`;
-          row[layerOptions.dstField] = `${row[layerOptions.dstField]}${EDGE_DELIMITER}${unique_id}`;
+          if(this._options?.topologySource == "autodetect") {
+            row[layerOptions.srcField] = `${row[layerOptions.srcField]}${EDGE_DELIMITER}${unique_id}`;
+            row[layerOptions.dstField] = `${row[layerOptions.dstField]}${EDGE_DELIMITER}${unique_id}`;
+          }
         }
         // match for the case where we have a row with a single metadata point as src
         if(!edgeName){
@@ -467,13 +469,11 @@ export class MapCanvas extends BindableHTMLElement {
         // set the traffic sample by forward match
         let targetEdge = layerTopology.edges[edgeHash[forwardEdgeSelector]];
         let values = { in: layerOptions.inboundValueField, out: layerOptions.outboundValueField };
-        let edgeIsReversed = false;
         // set the traffic sample by reverse match if no match yet
         if(!targetEdge){
           targetEdge = layerTopology.edges[edgeHash[reverseEdgeSelector]];
           // be sure to reverse directionality of match
           values = { in: layerOptions.outboundValueField, out: layerOptions.inboundValueField };
-          edgeIsReversed = true;
         }
         // set the traffic sample by single-point match if no match yet. Use forward directionality
         if(!targetEdge){ targetEdge = layerTopology.edges[edgeHash[singleIdSelector]] }
