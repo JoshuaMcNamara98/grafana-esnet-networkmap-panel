@@ -4,7 +4,7 @@ import * as d3_import from './d3.min.js';
 // populate either with import or ES6 root-scope version
 const d3 = window['d3'] || d3_import;
 import { render as renderTemplate } from "./rubbercement.js"
-import { defaultEdgeTooltip, defaultNodeTooltip } from "../../options.js";
+import { defaultEdgeTooltip, defaultNodeTooltip, defaultDisplayNameTooltip } from "../../options.js";
 import * as L from "./leaflet-src.esm.js";
 import { signals } from '../../signals.js';
 
@@ -93,6 +93,13 @@ function renderEdges(g, data, ref, layerId) {
     ref.mapCanvas.hideTooltip();
 
     var template = ref.mapCanvas.options.enableCustomEdgeTooltip ? ref.mapCanvas.options.customEdgeTooltip : defaultEdgeTooltip;
+
+    // Use the given "displayName" if one is provided only when the default tooltip is selected
+    // This assumes that nothing else is to be displayed besides what is given
+    // I.e. not displaying the in or out values
+    if ("displayName" in d?.meta && !ref.mapCanvas.options.enableCustomEdgeTooltip) {
+      template = defaultDisplayNameTooltip;
+    }
 
     // Try to sanitize any unique ID from the node/edge names
     d.nodeA = d.nodeA.split("--")[0];
@@ -693,6 +700,10 @@ function renderNodes(g, data, ref, layerId) {
       d3.select(event.target.parentElement).attr("transform", "scale(1.5, 1.5)");
       const template = ref.mapCanvas.options.enableCustomNodeTooltip ? ref.mapCanvas.options.customNodeTooltip : defaultNodeTooltip;
 
+      if ("displayName" in d?.meta && !ref.mapCanvas.options.enableCustomEdgeTooltip) {
+        template = defaultDisplayNameTooltip;
+      }
+
       // Sanitize any unique ID from the node name
       d.name = d.name.split("--")[0];
 
@@ -1207,7 +1218,7 @@ export class EsMap {
     let lineGen = ref.lineGen;
     if (data?.pathLayout?.type && d3.hasOwnProperty(data?.pathLayout?.type)){
       let linefunc = d3[data.pathLayout.type];
-      lineGen = d3.line().curve(linefunc);
+      lineGen = d3.line().curve(d3.curveBundle.beta(0.6));
     }
     ref.curves[idx] = lineGen;
     var map_g = this.svg.append('g').attr('class', 'esmap');

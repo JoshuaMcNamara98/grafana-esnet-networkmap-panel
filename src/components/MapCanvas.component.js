@@ -497,15 +497,17 @@ export class MapCanvas extends BindableHTMLElement {
           layerTopology.nodes[nodeHash[targetEdge.nodeA]]["inTraffic"] += row[values.in];
           // out value should be added to the A node's out and the Z node's in
           layerTopology.nodes[nodeHash[targetEdge.nodeA]]["outTraffic"] += row[values.out];
+          // Add any other data sent via traffic as available metadata for use in custom tooltips
+          layerTopology.nodes[nodeHash[targetEdge.nodeA]]["meta"] = utils.deepJsonFix(row);
         }
         if(targetEdge && targetEdge.nodeZ && nodeHash.hasOwnProperty(targetEdge.nodeZ)){
           // in value should be added to the A node's in and the Z node's out
           layerTopology.nodes[nodeHash[targetEdge.nodeZ]]["outTraffic"] += row[values.in];
           // out value should be added to the A node's out and the Z node's in
           layerTopology.nodes[nodeHash[targetEdge.nodeZ]]["inTraffic"] += row[values.out];
+          // Add any other data sent via traffic as available metadata for use in custom tooltips
+          layerTopology.nodes[nodeHash[targetEdge.nodeZ]]["meta"] = utils.deepJsonFix(row);
         }
-        // Add any other data sent via traffic as available metadata for use in custom tooltips
-        layerTopology.nodes[nodeHash[targetEdge.nodeA]]["meta"] = utils.deepJsonFix(row);
       })
       // as a final step for nodes, convert the traffic sums to formatted labels
       // and color the node based on the max traffic (in vs out)
@@ -933,11 +935,9 @@ export class MapCanvas extends BindableHTMLElement {
             "coordinates": [],
             "meta": { "endpoint_identifiers": { "names": [source.name, dest.name] } }
           }
-          if ("anchors" in edge) {
+          if ("anchors" in edge && edge.anchors.length > 0) {
             // Use the given list of coordinates
-            let coordinates = [source.coordinate, dest.coordinate];
-            coordinates.splice(1, 0, ...JSON.parse(edge["anchors"]));
-            edgeObj["coordinates"] = coordinates;
+            edgeObj["coordinates"] = [source.coordinate, ...JSON.parse(edge["anchors"]), dest.coordinate];
           } else {
             // Calculate a mid-point coordinate if this edge has no
             // custom defined list of coordinates
