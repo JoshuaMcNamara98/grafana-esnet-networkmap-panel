@@ -457,7 +457,7 @@ export class MapCanvas extends BindableHTMLElement {
         node.inTraffic = 0;
         node.outTraffic = 0;
         node.color = layerOptions.color;
-        nodeHash[node.name] = nodeIdx
+        nodeHash[node.name.split("--")[0]] = nodeIdx
       });
       this._traffic?.forEach((row)=>{
         // match for the case where we have A--Z in order
@@ -492,21 +492,24 @@ export class MapCanvas extends BindableHTMLElement {
         targetEdge.zaDisplayValue = this._trafficFormat(row[values.out]);
         targetEdge.zaColor = this._trafficColor(row[values.out], this._options.thresholds, layerOptions.color);
         // do the accounting for nodes
-        if(targetEdge && targetEdge.nodeA && nodeHash.hasOwnProperty(targetEdge.nodeA)){
+        if(targetEdge && targetEdge.nodeA && nodeHash.hasOwnProperty(targetEdge.nodeA.split("--")[0])){
+          // Remove the unique ID from node names during lookup to correctly add in/out traffic values
+          let sanatized_nodeA = targetEdge.nodeA.split("--")[0];
           // in value should be added to the A node's in and the Z node's out
-          layerTopology.nodes[nodeHash[targetEdge.nodeA]]["inTraffic"] += row[values.in];
+          layerTopology.nodes[nodeHash[sanatized_nodeA]]["inTraffic"] += row[values.in];
           // out value should be added to the A node's out and the Z node's in
-          layerTopology.nodes[nodeHash[targetEdge.nodeA]]["outTraffic"] += row[values.out];
+          layerTopology.nodes[nodeHash[sanatized_nodeA]]["outTraffic"] += row[values.out];
           // Add any other data sent via traffic as available metadata for use in custom tooltips
-          layerTopology.nodes[nodeHash[targetEdge.nodeA]]["meta"] = utils.deepJsonFix(row);
+          layerTopology.nodes[nodeHash[sanatized_nodeA]]["meta"] = utils.deepJsonFix(row);
         }
-        if(targetEdge && targetEdge.nodeZ && nodeHash.hasOwnProperty(targetEdge.nodeZ)){
+        if(targetEdge && targetEdge.nodeZ && nodeHash.hasOwnProperty(targetEdge.nodeZ.split("--")[0])){
+          let sanatized_nodeZ = targetEdge.nodeZ.split("--")[0];
           // in value should be added to the A node's in and the Z node's out
-          layerTopology.nodes[nodeHash[targetEdge.nodeZ]]["outTraffic"] += row[values.in];
+          layerTopology.nodes[nodeHash[sanatized_nodeZ]]["outTraffic"] += row[values.in];
           // out value should be added to the A node's out and the Z node's in
-          layerTopology.nodes[nodeHash[targetEdge.nodeZ]]["inTraffic"] += row[values.out];
+          layerTopology.nodes[nodeHash[sanatized_nodeZ]]["inTraffic"] += row[values.out];
           // Add any other data sent via traffic as available metadata for use in custom tooltips
-          layerTopology.nodes[nodeHash[targetEdge.nodeZ]]["meta"] = utils.deepJsonFix(row);
+          layerTopology.nodes[nodeHash[sanatized_nodeZ]]["meta"] = utils.deepJsonFix(row);
         }
       })
       // as a final step for nodes, convert the traffic sums to formatted labels
